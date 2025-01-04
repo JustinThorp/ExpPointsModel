@@ -11,6 +11,7 @@ features = [
     "total_home_score",
     "total_away_score",
     "homepos",
+    "season"
     # "spread_line",
     # "total_line",
 ]

@@ -18,6 +18,7 @@ data = (
             pl.col("qtr"),
             pl.col("down"),
             pl.col("ydstogo"),
+            pl.col("season"),
             pl.col("yardline_100"),
             pl.col("posteam_score"),
             pl.col("defteam_score"),

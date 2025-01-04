@@ -1,10 +1,8 @@
-import numpy as np
-import torch
 import polars as pl
+import torch
 import matplotlib.pyplot as plt
-import seaborn as sns
 
-from model import EPModel, features
+from model import features, EPModel
 
 model = EPModel()
 model.load_state_dict(torch.load("data/mode.ph", weights_only=True))
@@ -13,6 +11,10 @@ raw_data = pl.scan_parquet(
     "/Users/justinthorp/Documents/NFLWinProb/data/traing_data.parquet"
 )
 
+GAMEID = "2024_01_DAL_CLE"
+
+
+print([x for x in raw_data.columns if "drive" in x])
 data = (
     raw_data.select(
         [
@@ -49,6 +51,7 @@ data = (
         ]
     )
     .drop_nulls()
+    .filter(pl.col("game_id") == GAMEID)
     .collect()
 )
 
@@ -87,21 +90,15 @@ data = (
         .then(pl.col("HomeEPDA"))
         .otherwise(pl.col("AwayEPDA"))
         .alias("MyEPDA"),
+        pl.col("game_seconds_remaining").sub(3600).mul(-1),
     )
 )
 
 
-output_df = (
-    data.filter(pl.col("qtr") <= 4)
-    .select(
-        pl.col("qtr"),
-        pl.col("HomeEP"),
-        pl.col("home_score"),
-        pl.col("HomeEP").sub(pl.col("home_score")).pow(2).alias("HomeSE"),
-        pl.col("AwayEP").sub(pl.col("away_score")).pow(2).alias("AwaySE"),
-    )
-    .group_by("qtr")
-    .agg(pl.col("HomeSE").mean(), pl.col("AwaySE").mean())
-    .sort("qtr")
+fig, ax = plt.subplots(1)
+ax.plot(data["game_seconds_remaining"], data["HomeEP"])
+ax.plot(data["game_seconds_remaining"], data["AwayEP"])
+ax.fill_between(
+    data["game_seconds_remaining"], data["HomeEP"], data["AwayEP"], alpha=0.2
 )
-print(output_df)
+plt.show()
