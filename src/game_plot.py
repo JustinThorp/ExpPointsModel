@@ -1,6 +1,7 @@
 import polars as pl
 import torch
 import matplotlib.pyplot as plt
+import matplotlib.gridspec as gridspec
 
 from model import features, EPModel
 
@@ -14,7 +15,7 @@ raw_data = pl.scan_parquet(
 GAMEID = "2024_01_DAL_CLE"
 
 
-print([x for x in raw_data.columns if "drive" in x])
+#print([x for x in raw_data.columns if "drive" in x])
 data = (
     raw_data.select(
         [
@@ -25,6 +26,7 @@ data = (
             pl.col("qtr"),
             pl.col("down"),
             pl.col("ydstogo"),
+            pl.col('season'),
             pl.col("yardline_100"),
             pl.col("posteam_score"),
             pl.col("defteam_score"),
@@ -95,10 +97,87 @@ data = (
 )
 
 
+def style(fig, ax):
+    # Set the background color
+    fig.patch.set_facecolor('#f0f0f0')
+    ax.set_facecolor('#f0f0f0')
+
+    # Remove the top and right spines
+    ax.spines['top'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+
+    # Color and style the remaining spines
+    ax.spines['bottom'].set_color('#ccc8c8')
+    ax.spines['left'].set_color('#ccc8c8')
+
+    # Style the grid
+    ax.grid(True, 'major', color='#dbdbdb', linestyle='-', linewidth=1)
+    ax.grid(True, 'minor', color='#dbdbdb', linestyle='-', linewidth=0.5)
+
+    # Put grid behind plots
+    ax.set_axisbelow(True)
+
+    # Style the ticks
+    ax.tick_params(axis='both', colors='#666666', labelsize=10)
+
+    # Set the default font
+    plt.rcParams['font.family'] = 'sans-serif'
+    plt.rcParams['font.sans-serif'] = ['Arial']
+
+    # Style the title and labels
+    ax.set_title(ax.get_title(), color='#666666', size=14, pad=15)
+    ax.set_xlabel(ax.get_xlabel(), color='#666666', size=10)
+    ax.set_ylabel(ax.get_ylabel(), color='#666666', size=10)
+
+    # Add padding to the layout
+    fig.tight_layout(pad=2.0)
+
 fig, ax = plt.subplots(1)
 ax.plot(data["game_seconds_remaining"], data["HomeEP"])
 ax.plot(data["game_seconds_remaining"], data["AwayEP"])
 ax.fill_between(
     data["game_seconds_remaining"], data["HomeEP"], data["AwayEP"], alpha=0.2
 )
-plt.show()
+ax.set_xlabel('Game Seconds Remaining')
+ax.set_ylabel('Predicted Score')
+ax.set_title('2024 Week 1 DAL @ CLE')
+ax.axhline(33,linestyle = 'dashed',color = 'orange',alpha = .5)
+ax.axhline(17,linestyle = 'dashed',color = 'blue',alpha = .5)
+fig.patch.set_facecolor('#f0f0f0')
+ax.set_facecolor('#f0f0f0')
+
+# Remove the top and right spines
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+
+# Color and style the remaining spines
+ax.spines['bottom'].set_color('#ccc8c8')
+ax.spines['left'].set_color('#ccc8c8')
+
+# Style the grid
+ax.grid(True, 'major', color='#dbdbdb', linestyle='-', linewidth=1)
+ax.grid(True, 'minor', color='#dbdbdb', linestyle='-', linewidth=0.5)
+
+# Put grid behind plots
+ax.set_axisbelow(True)
+
+# Style the ticks
+ax.tick_params(axis='both', colors='#666666', labelsize=10)
+
+# Set the default font
+plt.rcParams['font.family'] = 'sans-serif'
+plt.rcParams['font.sans-serif'] = ['Arial']
+
+# Style the title and labels
+ax.set_title(ax.get_title(), color='#666666', size=14, pad=15)
+ax.set_xlabel(ax.get_xlabel(), color='#666666', size=10)
+ax.set_ylabel(ax.get_ylabel(), color='#666666', size=10)
+
+# Add padding to the layout
+fig.tight_layout(pad=2.0)
+fig.patch.set_facecolor('#f0f0f0')
+fig.savefig('data/game_plot.jpg',
+                dpi=300,
+                bbox_inches='tight',
+                facecolor=fig.get_facecolor(),
+                edgecolor='none')

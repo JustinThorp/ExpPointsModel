@@ -25,6 +25,7 @@ data = (
             pl.col("ydstogo"),
             pl.col("yardline_100"),
             pl.col("posteam_score"),
+            pl.col('season'),
             pl.col("defteam_score"),
             pl.col("home_score"),
             pl.col("away_score"),

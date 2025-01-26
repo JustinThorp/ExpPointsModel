@@ -16,6 +16,7 @@ data = (
             pl.col("game_id"),
             pl.col("posteam"),
             pl.col("defteam"),
+            pl.col('season'),
             pl.col("game_seconds_remaining"),
             pl.col("qtr"),
             pl.col("down"),
